@@ -1,17 +1,18 @@
 const path = require('path')
-const HTMLPlugin = require('html-webpack-plugin')
 
+// 服务端渲染 webpack 配置
 module.exports = {
-    //入口
+    //打包后的文件 在哪个环境下执行 默认为 web 浏览器环境
+    target: 'node',
     entry: {
-        app: path.join(__dirname, '../client/app.js')
+        app: path.join(__dirname, '../client/server-entry.js')
     },
-    //出口
     output: {
-        filename: '[name].[hash].js', // 文件更改后重新打包，hash值变化，从而刷新缓存
+        filename: 'server-entry.js', 
         path: path.join(__dirname, '../dist'),
-        //很重要
-        publicPath: '', 
+        publicPath: '/public', 
+        //nodejs的模块机制 是 commonjs
+        libraryTarget: 'commonjs2'
     },
     module: {
         rules: [
@@ -28,10 +29,6 @@ module.exports = {
             }
         ]
     },
-    plugins: [
-        // 生成一个html页面，同时把所有 entry打包后的 output 文件全部注入到这个html页面
-        new HTMLPlugin()
-    ],
     //开发模式
     mode: 'development',
 }
