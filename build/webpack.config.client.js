@@ -15,20 +15,29 @@ const config = {
         filename: '[name].[hash].js', // 文件更改后重新打包，hash值变化，从而刷新缓存
         path: path.join(__dirname, '../dist'),
         //很重要
-        publicPath: '/public/', 
+        publicPath: '/public/',
     },
     module: {
         rules: [
+            {
+                //前置(在执行编译之前去执行eslint-loader检查代码规范，有报错就不执行编译)
+                enforce: 'pre',
+                test: /.(js|jsx)$/,
+                loader: 'eslint-loader',
+                exclude: [
+                    path.join(__dirname,'../node_modules')
+                ]
+            },
             {   //将jsx转换成 js
                 test: /.jsx$/,
-                loader: 'babel-loader'  
+                loader: 'babel-loader'
             },
             {   //将ES6语法转成 低版本语法
                 test: /.js$/,
                 loader: 'babel-loader',
                 exclude: [//排除node_modules 下的js
                     path.join(__dirname,'../node_modules')
-                ]  
+                ]
             }
         ]
     },
@@ -39,7 +48,7 @@ const config = {
         })
     ],
     //开发模式
-    mode: 'development',
+    mode: 'development'
 }
 
 if(isDev){
@@ -52,9 +61,9 @@ if(isDev){
         port: '8887',
         contentBase: path.join(__dirname, '../dist'), //告诉服务器从哪个目录中提供内容
         hot: true,//启用 webpack 的模块热替换特性
-        overlay: {//当出现编译器错误或警告时，就在网页上显示一层黑色的背景层和错误信息 
+        overlay: {//当出现编译器错误或警告时，就在网页上显示一层黑色的背景层和错误信息
             errors: true
-        },  
+        },
         publicPath: '/public/',//webpack-dev-server打包的内容是放在内存中的，这些打包后的资源对外的的根目录就是publicPath，换句话说，这里我们设置的是打包后资源存放的位置
         historyApiFallback: {
             index: '/public/index.html'
