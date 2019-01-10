@@ -16,6 +16,15 @@ module.exports = {
     },
     module: {
         rules: [
+            {
+                //前置(在执行编译之前去执行eslint-loader检查代码规范，有报错就不执行编译)
+                enforce: 'pre',
+                test: /.(js|jsx)$/,
+                loader: 'eslint-loader',
+                exclude: [
+                    path.join(__dirname,'../node_modules')
+                ]
+            },
             {   //将jsx转换成 js
                 test: /.jsx$/,
                 loader: 'babel-loader'  

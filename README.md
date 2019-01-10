@@ -4,7 +4,7 @@
 
 ### build
 
-+ 配置文件  
++ 配置文件
 + webpack的 config文件
 + 其它工程需要用到的脚本文件
 
@@ -43,14 +43,14 @@
         rules: [
             {   //将jsx转换成 js
                 test: /.jsx$/,
-                loader: 'babel-loader'  
+                loader: 'babel-loader'
             },
             {   //将ES6语法转成 低版本语法
                 test: /.js$/,
                 loader: 'babel-loader',
                 exclude: [//排除node_modules 下的js
                     path.join(__dirname,'../node_modules')
-                ]  
+                ]
             }
         ]
     }
@@ -74,11 +74,11 @@
     "plugins": [
         "react-hot-loader/babel"
     ]
-}  
+}
 ```
 
 + @babel/core
-+ @babel/preset-env: 处理ES6语法 
++ @babel/preset-env: 处理ES6语法
 + @babel/preset-react: 处理react语法
 
 [babel 升级到7.X采坑总结](https://segmentfault.com/a/1190000016458913)
@@ -143,7 +143,7 @@ res.send(template.replace('<!--app-->', appString))
 
 ```js
 //所有 /public 的url 请求的都是静态文件， 这里用到的就是 webpack的 output中的 publicPath属性
-app.use('/public', express.static(path.join(__dirname, '../dist')))  
+app.use('/public', express.static(path.join(__dirname, '../dist')))
 ```
 
 ### 服务端渲染 开发环境的搭建(热更替)
@@ -244,6 +244,100 @@ module.exports = function (app) {
 }
 ```
 
+## 使用eslint和editorconfig规范代码
+
++ 为什么要使用这些？
+    + 规范代码有利于团队协作
+    + 纯手工规范时费力，而且不能保证准确性
+    + 能配合编辑自动提醒错误，提高开发效率
+
+### eslint 的使用
+
++ 根目录下创建 .eslintrc
+
++ client目录下创建 .eslintrc
+
++ webpack配置文件中 新增配置
+
+```js
+rules: [
+  {
+    //前置(在执行编译之前去执行eslint-loader检查代码规范，有报错就不执行编译)
+    enforce: 'pre',
+    test: /.(js|jsx)$/,
+    loader: 'eslint-loader',
+    exclude: [
+        path.join(__dirname,'../node_modules')
+    ]
+  }
+]
+```
+
+安装
+
+```sh
+yarn add eslint babel-eslint eslint-config-airbnb eslint-config-standard eslint-loader eslint-plugin-import eslint-plugin-jsx-a11y eslint-plugin-node eslint-plugin-promise eslint-plugin-react eslint-plugin-standard --dev
+```
+
+使用技巧
+
+1 如果你不想让某一行被eslint检测，就在这行添加注释 eslint-disable-line
+
+```js
+ const NextApp = require('./App.jsx').default //eslint-disable-line
+```
+
+2 你也可以不采用某条校验规则
+
+```json
+{
+  "rules": {
+    "semi": [0],
+    "react/jsx-filename-extension": [0]
+  }
+}
+```
+
+3 ESLint 忽略特定的文件和目录
+
+在项目根目录创建一个 .eslintignore 文件告诉 ESLint 去忽略特定的文件和目
+
+```sh
+build/*.js
+```
+
+4 eslint 配合git
+
+在git commit代码的时候，使用git hook 调用eslint进行代码规范验证，不规范的代码无法提交到仓库
+
+```sh
+yarn add husky --dev
+```
+
+在package.json下新增两个 script
+
+```json
+  "scripts": {
+    "eslint": "eslint --ext .js --ext .jsx client/",
+    "precommit": "npm run lint"
+  }
+```
+
+### editorconfig
+
+```
+root = true
+
+[*]
+charset = utf-8
+indent_style = space
+indent_size = 2
+end_of_lint = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+```
+
+
 ## package.json中 用到的 包
 
 ### rimraf
@@ -273,3 +367,46 @@ module.exports = function (app) {
     app.listen(3000);
     ```
 
+### serve-favicon
+
+用于请求网页的favicon图标
+
+```js
+app.use(favicon(path.join(__dirname, '../favicon.ico')))
+```
+
+### [nodemon](http://bubkoo.com/2014/12/02/use-nodemon-with-node-applications/)
+
+nodemon 是一款非常实用的工具，用来监控 NodeJS 源代码的任何变化和自动重启你的服务器，这样我们只需要刷新页面就能看到你的改动
+使用
+
+1 根目录下配置 nodemon.json 配置文件
+
+```js
+{
+  // 手动重启对应的命令，默认为 rs，你可以按照自己的习惯做对应的修改，
+  // 比如修改为 rb，那么 rb 将作为新的手动重启命令。
+  "restartable": "rs",
+  //忽略的文件和文件夹
+  "ignore": [
+    ".git",
+    "node_modules/**/node_modules",
+    ".eslintrc",
+    "client",
+    "build"
+  ],
+  "env": {
+    "NODE_ENV": "development"
+  },
+  "verbose": true,
+  // 监视指定后缀名的文件
+  "ext": "js"
+}
+```
+
+2 更改 dev:server 脚本
+
+```sh
+-"dev:server": "cross-env NODE_ENV=development node server/server.js"
++"dev:server": "nodemon server/server.js"
+```
