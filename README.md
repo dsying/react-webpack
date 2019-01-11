@@ -33,7 +33,7 @@
         filename: '[name].[hash].js',
         path: path.join(__dirname, '../dist'),//输出目录，默认为dist
         publicPath: '/public', //html 引用打包后的js时，url的前缀, 静态文件的 基础路径
-        libraryTarget: 'commonjs2'//模块打包机制 配置如何暴露 library
+        libraryTarget: 'commonjs2'//模块打包机制 当用 Webpack 去构建一个可以被其他模块导入使用的库时需要用到它
     }
 ```
 
@@ -95,18 +95,20 @@ if(isDev){
     config.devServer = {
         hots: '0.0.0.0',
         port: '8888',
-        contentBase: path.join(__dirname, '../dist'), //告诉服务器从哪个目录中提供内容
+        contentBase: path.join(__dirname, '../dist'), //告诉服务器从哪个目录中提供内容(这些内容是项目本身的文件，和webpack无关)
         hot: true,//启用 webpack 的模块热替换特性
         overlay: {//当出现编译器错误或警告时，就在网页上显示一层黑色的背景层和错误信息
             errors: true
         },
-        publicPath: '/public',
-        historyApiFallback: {
+        publicPath: '/public/', // 由webpack 输出的内容都在这个目录下 即 localhost:8887/public/
+        historyApiFallback: { // 404 时 跳转到 /public/index.html
             index: '/public/index.html'
         }
     }
 }
 ```
+
+![Alt text](./devServer.jpg "Optional title")
 
 ### [webpack 配置react-hot-loader热更替](https://blog.csdn.net/huangpb123/article/details/78556652)
 
@@ -116,9 +118,9 @@ webpack-dev-server 已经是热加载了，能做到只要代码修改了页面�
 
 ### 服务端渲染配置(生产环境)
 
-1 首先把需要服务端渲染的内容，放到独立的文件内，如本项目的client-entry.js
+1 首先把需要服务端渲染的内容，放到独立的文件内，如本项目的server-entry.js
 
-2 client-entry.js需要单独打包，所以需要配置webpack.config.server.js(服务端webpack配置文件，注意比较两者不同之处)
+2 server-entry.js需要单独打包，所以需要配置webpack.config.server.js(服务端webpack配置文件，注意比较两者不同之处)
 
 3 后端创建一个server.js
 
@@ -255,7 +257,33 @@ module.exports = function (app) {
 
 + 根目录下创建 .eslintrc
 
+```json
+{
+    "extends": "standard"
+}
+```
+
 + client目录下创建 .eslintrc
+
+```json
+{
+    "parser": "babel-eslint",
+    "env": {
+        "browser": true,
+        "es6": true,
+        "node": true
+    },
+    "parserOptions": {
+        "ecmaVersion": 6,
+        "sourceType": "module"
+    },
+    "extends": "airbnb",
+    "rules": {
+        "semi": [0],
+        "react/jsx-filename-extension": [0]
+    }
+}
+```
 
 + webpack配置文件中 新增配置
 
@@ -336,7 +364,6 @@ end_of_lint = lf
 insert_final_newline = true
 trim_trailing_whitespace = true
 ```
-
 
 ## package.json中 用到的 包
 
