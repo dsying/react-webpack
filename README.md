@@ -68,6 +68,10 @@
 
 ### .babelrc 配置
 
+```sh
+yarn add babel-loader @babel/core @babel/preset-env @babel/preset-react
+```
+
 ```js
 {
     "presets": [ "@babel/preset-env", "@babel/preset-react" ],
