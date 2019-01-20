@@ -17,6 +17,10 @@ const config = {
         //很重要
         publicPath: '/public/',
     },
+    //解析
+    resolve: {
+        extensions: ['.js', '.jsx'], // 自动解析确定的扩展
+    },
     module: {
         rules: [
             {
@@ -55,7 +59,8 @@ if(isDev){
     config.entry = [
         'react-hot-loader/patch', //设置这里
         path.join(__dirname, '../client/app.js')
-    ]
+   ]
+    config.devtool = '#cheap-module-eval-source-map' // source-map 拍错
     config.devServer = {
         host: '0.0.0.0',
         port: '8887',
